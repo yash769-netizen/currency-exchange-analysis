@@ -1,5 +1,4 @@
-# Currency Converter and Exchange Rate Analysis
-# Works in Google Colab or Jupyter Notebook.
+# Currency converter and historical rate analysis
 
 import requests
 import pandas as pd
@@ -42,6 +41,7 @@ def detect_anomalies(df, sensitivity=5):
     result = df.copy()
     result['Daily_Change_Pct'] = result['Rate'].pct_change().fillna(0) * 100
     result['Volatility_7'] = result['Daily_Change_Pct'].rolling(7, min_periods=2).std().fillna(0)
+    # Use changes and recent volatility to find unusual observations.
     features = result[['Daily_Change_Pct', 'Volatility_7']]
     model = IsolationForest(contamination=sensitivity / 100, random_state=42, n_estimators=100)
     result['Anomaly'] = model.fit_predict(features) == -1
@@ -63,6 +63,7 @@ def analyze(from_currency, to_currency, start_date, end_date, sensitivity):
     plt.show()
     plt.close(fig)
 
+    # Keep the results in case I want to check them later in a spreadsheet.
     filename = f'exchange_rates_{from_currency}_{to_currency}.csv'
     result.to_csv(filename, index=False)
     print(f'Analyzed {len(result)} exchange-rate observations.')
